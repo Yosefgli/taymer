@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>טיימר AXAD</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+
+        .logo {
+            width: 150px;
+            height: auto;
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            padding: 20px;
+        }
+
+        .clock {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 250px;
+            height: 250px;
+            border: 8px solid #0066cc;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            font-size: 56px;
+            color: #0066cc;
+            margin-bottom: 30px;
+            transition: all 0.3s ease;
+        }
+
+        .clock.time-up {
+            border-color: #ff4444;
+            color: #ff4444;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        input {
+            font-size: 18px;
+            padding: 12px;
+            border: 2px solid #0066cc;
+            border-radius: 8px;
+            width: 120px;
+            text-align: center;
+            margin: 10px;
+        }
+
+        button {
+            padding: 12px 30px;
+            font-size: 18px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            background: #0066cc;
+            color: white;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 102, 204, 0.2);
+        }
+
+        button:hover {
+            background: #0052a3;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 102, 204, 0.3);
+        }
+
+        label {
+            font-size: 20px;
+            color: #333;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <img src="https://www.imghippo.com/i/lykq9236RI.png" alt="AXAD Logo" class="logo">
+    
+    <div class="container" id="setup">
+        <div class="input-group">
+            <label for="minutes">הכנס מספר דקות:</label>
+            <input type="number" id="minutes" min="1" max="999">
+        </div>
+        <button onclick="startTimer()">התחל טיימר</button>
+    </div>
+
+    <div class="container" id="timer" style="display: none;">
+        <div class="clock" id="clock">00:00</div>
+        <button onclick="goBack()">חזור</button>
+    </div>
+
+    <script>
+        let alarmSound = new Audio('https://www.soundjay.com/button/beep-07.wav');
+        let intervalId = null;
+
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = seconds % 60;
+            return `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
+        }
+
+        function startTimer() {
+            const minutesInput = document.getElementById('minutes').value;
+            if (!minutesInput || minutesInput <= 0 || minutesInput > 999) {
+                alert('אנא הכנס מספר דקות תקין (1-999)');
+                return;
+            }
+
+            if (intervalId) {
+                clearInterval(intervalId);
+            }
+
+            const durationInSeconds = parseInt(minutesInput) * 60;
+            document.getElementById('setup').style.display = 'none';
+            document.getElementById('timer').style.display = 'flex';
+            
+            const clock = document.getElementById('clock');
+            clock.classList.remove('time-up');
+            let remainingTime = durationInSeconds;
+
+            intervalId = setInterval(() => {
+                if (remainingTime <= 0) {
+                    clock.textContent = 'הזמן נגמר!';
+                    clock.classList.add('time-up');
+                    alarmSound.play();
+                    clearInterval(intervalId);
+                    intervalId = null;
+                } else {
+                    clock.textContent = formatTime(remainingTime);
+                    remainingTime -= 1;
+                }
+            }, 1000);
+        }
+
+        function goBack() {
+            if (intervalId) {
+                clearInterval(intervalId);
+                intervalId = null;
+            }
+            document.getElementById('setup').style.display = 'flex';
+            document.getElementById('timer').style.display = 'none';
+            document.getElementById('clock').textContent = '00:00';
+            document.getElementById('clock').classList.remove('time-up');
+        }
+    </script>
+</body>
+</html>
