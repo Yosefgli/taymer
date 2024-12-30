@@ -60,6 +60,15 @@
 
         .input-group {
             margin-bottom: 20px;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .time-input {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         input {
@@ -102,8 +111,14 @@
     
     <div class="container" id="setup">
         <div class="input-group">
-            <label for="minutes">הכנס מספר דקות:</label>
-            <input type="number" id="minutes" min="1" max="999">
+            <div class="time-input">
+                <label for="minutes">דקות:</label>
+                <input type="number" id="minutes" min="0" max="999" value="0">
+            </div>
+            <div class="time-input">
+                <label for="seconds">שניות:</label>
+                <input type="number" id="seconds" min="0" max="59" value="0">
+            </div>
         </div>
         <button onclick="startTimer()">התחל טיימר</button>
     </div>
@@ -124,9 +139,16 @@
         }
 
         function startTimer() {
-            const minutesInput = document.getElementById('minutes').value;
-            if (!minutesInput || minutesInput <= 0 || minutesInput > 999) {
-                alert('אנא הכנס מספר דקות תקין (1-999)');
+            const minutes = parseInt(document.getElementById('minutes').value) || 0;
+            const seconds = parseInt(document.getElementById('seconds').value) || 0;
+            
+            if (minutes === 0 && seconds === 0) {
+                alert('אנא הכנס זמן תקין');
+                return;
+            }
+
+            if (minutes > 999 || seconds > 59) {
+                alert('אנא הכנס זמן תקין (0-999 דקות, 0-59 שניות)');
                 return;
             }
 
@@ -134,7 +156,7 @@
                 clearInterval(intervalId);
             }
 
-            const durationInSeconds = parseInt(minutesInput) * 60;
+            const durationInSeconds = (minutes * 60) + seconds;
             document.getElementById('setup').style.display = 'none';
             document.getElementById('timer').style.display = 'flex';
             
@@ -161,6 +183,10 @@
                 clearInterval(intervalId);
                 intervalId = null;
             }
+            // עצירת הצליל אם הוא מתנגן
+            alarmSound.pause();
+            alarmSound.currentTime = 0;
+            
             document.getElementById('setup').style.display = 'flex';
             document.getElementById('timer').style.display = 'none';
             document.getElementById('clock').textContent = '00:00';
